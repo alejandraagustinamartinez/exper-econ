@@ -7,6 +7,7 @@ A simple Tullock game
 
 
 class C(BaseConstants):
+    COST_PER_TICKET = None
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 2
@@ -18,10 +19,14 @@ class Subsession(BaseSubsession):
 
     def setup(self):
         self.is_paid = (self.round_number == 1)
+        for group in self.get_groups():
+            group.setup()
 
 
 class Group(BaseGroup):
-    pass
+    def setup(self):
+        for player in self.get_players():
+            player.setup()
 
 
 class Player(BasePlayer):
@@ -31,7 +36,9 @@ class Player(BasePlayer):
     is_winner = models.BooleanField()
     earnings = models.IntegerField()
 
-    pass
+    def setup(self):
+        self.endowment = C.ENDOWMENT
+        self.cost_per_ticket = C.COST_PER_TICKET
 
 
 def creating_session(subsession):
