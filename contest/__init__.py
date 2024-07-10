@@ -40,7 +40,7 @@ class Group(BaseGroup):
                 tickets.append(player.id_in_group)
         winner_id = random.choice(tickets)
         for player in self.get_players():
-            player.is_winner = [player.id_in_group == winner_id]
+            player.is_winner = (player.id_in_group == winner_id)
             player.earnings = (player.endowment - player.cost_per_ticket*player.tickets_purchased
                                + player.is_winner*C.PRIZE)
             if self.subsession.is_paid:
