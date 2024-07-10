@@ -1,17 +1,17 @@
 from otree.api import *
-
+import random
 
 doc = """
 A simple Tullock game 
 """
 
-
 class C(BaseConstants):
-    COST_PER_TICKET = 1
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 2
     ENDOWMENT = 20
+    COST_PER_TICKET = 1
+    PRIZE = 20
 
 
 class Subsession(BaseSubsession):
@@ -27,6 +27,25 @@ class Group(BaseGroup):
     def setup(self):
         for player in self.get_players():
             player.setup()
+
+
+    def determine_outcomes(self):
+        tickets = []
+        for player in self.get_players():
+            for i in range(player.tickets_purchased):
+                tickets.append(player.id_in_group)
+        if not tickets:
+            for player in self.get_players():
+                tickets.append(player.id_in_group)
+        winner_id = random.choice(tickets)
+        for player in self.get_players():
+            player.is_winner = [player.id_in_group == winner_id]
+            player.earnings = (player.endowment - player.cost_per_ticket*player.tickets_purchased
+                               + player.is_winner*C.PRIZE)
+            if self.subsession.is_paid:
+                player.payoff = player.earnings
+
+        #print(tickets)
 
 
 class Player(BasePlayer):
@@ -63,7 +82,13 @@ class Decision(Page):
 
 
 class Waitfordecision(WaitPage):
-    pass
+    wait_for_all_groups = True
+
+    @staticmethod
+    def after_all_players_arrive(subsession):
+        for group in subsession.get_groups:
+            group.determine_outcomes()
+
 
 
 class Results(Page):
