@@ -1,7 +1,10 @@
 {{ block title }}
-    Decision
+    Decision for round number {{player.round_number}}
 {{ endblock }}
 {{ block content }}
+
+        your endowment is {{player.endowment}}
+        your cost is {{player.cost_per_ticket}}
 
     {{ formfields }}
     {{ next_button }}

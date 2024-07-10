@@ -7,7 +7,7 @@ A simple Tullock game
 
 
 class C(BaseConstants):
-    COST_PER_TICKET = None
+    COST_PER_TICKET = 1
     NAME_IN_URL = 'contest'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 2
@@ -55,7 +55,11 @@ class SetupRound(WaitPage):
 
 
 class Decision(Page):
-    pass
+    form_model = 'player'
+
+    @staticmethod
+    def get_form_fields(player):
+        return ['tickets_purchased']
 
 
 class Waitfordecision(WaitPage):
