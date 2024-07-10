@@ -3,7 +3,12 @@
 {{ endblock }}
 {{ block content }}
 
-    {{ formfields }}
+
+{{ for rd in player.in_all_rounds }}
+
+    tickets: {{rd.tickets_purchased}},
+    won: {{rd.is_winner}}
+
     {{ next_button }}
 
 {{ endblock }}

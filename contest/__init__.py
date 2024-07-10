@@ -7,10 +7,10 @@ A simple Tullock game
 
 class C(BaseConstants):
     NAME_IN_URL = 'contest'
-    PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 2
+    PLAYERS_PER_GROUP = 2
+    NUM_ROUNDS = 5
     ENDOWMENT = 20
-    COST_PER_TICKET = 1
+    COST_PER_TICKET = {1: 1, 2: 2}
     PRIZE = 20
 
 
@@ -19,6 +19,7 @@ class Subsession(BaseSubsession):
 
     def setup(self):
         self.is_paid = (self.round_number == 1)
+        self.group_randomly()
         for group in self.get_groups():
             group.setup()
 
@@ -44,9 +45,7 @@ class Group(BaseGroup):
                                + player.is_winner*C.PRIZE)
             if self.subsession.is_paid:
                 player.payoff = player.earnings
-
         #print(tickets)
-
 
 class Player(BasePlayer):
     endowment = models.IntegerField()
@@ -57,7 +56,7 @@ class Player(BasePlayer):
 
     def setup(self):
         self.endowment = C.ENDOWMENT
-        self.cost_per_ticket = C.COST_PER_TICKET
+        self.cost_per_ticket = C.COST_PER_TICKET[self.id_in_group]
 
 
 def creating_session(subsession):
@@ -66,7 +65,10 @@ def creating_session(subsession):
 
 # PAGES
 class Intro(Page):
-    pass
+
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == 1
 
 
 class SetupRound(WaitPage):
@@ -86,9 +88,8 @@ class Waitfordecision(WaitPage):
 
     @staticmethod
     def after_all_players_arrive(subsession):
-        for group in subsession.get_groups:
+        for group in subsession.get_groups():
             group.determine_outcomes()
-
 
 
 class Results(Page):
@@ -96,7 +97,10 @@ class Results(Page):
 
 
 class Endblock(Page):
-    pass
+
+    @staticmethod
+    def is_displayed(player):
+        return player.round_number == C.NUM_ROUNDS
 
 
 page_sequence = [Intro,
